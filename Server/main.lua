@@ -128,7 +128,11 @@ TwoNa.GetPlayer = function(source)
     return player
 end
 
-TwoNa.GetAllVehicles = function() 
+TwoNa.GetAllVehicles = function(force)
+    if TwoNa.Vehicles and not force then 
+        return TwoNa.Vehicles
+    end
+    
     local vehicles = {}
 
     if Config.Framework == 'ESX' then
@@ -153,6 +157,8 @@ TwoNa.GetAllVehicles = function()
             } 
         end
     end
+
+    TwoNa.Vehicles = vehicles
 
     return vehicles
 end

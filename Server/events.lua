@@ -8,3 +8,10 @@ AddEventHandler("2na_core:Server:HandleCallback", function(name, payload)
 end)
 
 AddEventHandler("onResourceStart", CheckUpdate)
+
+RegisterNetEvent("2na_core:getSharedObject")
+AddEventHandler("2na_core:getSharedObject", function(cb)
+    if cb and type(cb) == 'function' then 
+        cb(TwoNa)
+    end 
+end)

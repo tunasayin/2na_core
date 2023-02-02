@@ -4,3 +4,10 @@ AddEventHandler("2na_core:Client:HandleCallback", function(name, data)
         TwoNa.Callbacks[name](data) 
     end
 end)
+
+RegisterNetEvent("2na_core:getSharedObject")
+AddEventHandler("2na_core:getSharedObject", function(cb)
+    if cb and type(cb) == 'function' then 
+        cb(TwoNa)
+    end 
+end)

@@ -1,6 +1,4 @@
 Citizen.CreateThread(function() 
-    TwoNa.CheckUpdate()
-
     while TwoNa.Framework == nil do
         if Config.Framework == 'ESX' then
             TriggerEvent("esx:getSharedObject", function(framewok) 
@@ -13,6 +11,4 @@ Citizen.CreateThread(function()
 
         Citizen.Wait(10)
     end
-
-    TwoNa.GetAllVehicles()
 end)
