@@ -1,6 +1,11 @@
 TwoNa = {}
 TwoNa.Callbacks = {}
 TwoNa.Framework = {}
+TwoNa.Vehicles = {}
+TwoNa.MySQL = {
+    Async = {},
+    Sync = {}
+}
 
 TwoNa.RegisterServerCallback = function(name, func) 
     TwoNa.Callbacks[name] = func
@@ -10,24 +15,75 @@ TwoNa.TriggerCallback = function()
     -- TODO
 end
 
-TwoNa.MySQL_Execute = function(query, variables, cb) 
-    if Config.MySQL == 'mysql-async' then
-        if cb then
-            exports["mysql-async"]:mysql_execute(query, variables, function(result) 
-                cb(result)
-            end) 
-        else
-            return exports["mysql-async"]:mysql_execute(query, variables) 
-        end
-    elseif Config.MySQL == 'oxmysql' then
-        if cb then 
-            exports["oxmysql"]:execute_async(query, variables, function(result) 
-                cb(result)
-            end)
-        else
-            return exports["oxmysql"]:execute_async(query, variables)
-        end
+TwoNa.Log = function(str) 
+    print("[\x1b[44m2na_core\x1b[0m]: " .. str)
+end
+
+-- TODO: Implement sync system
+TwoNa.MySQL.Async.Fetch = function(query, variables, cb) 
+    if not cb or type(cb) ~= 'function' then 
+        cb = function() end
     end
+
+    if Config.MySQL == 'mysql-async' then
+        return exports["mysql-async"]:mysql_fetch_all(query, variables, cb) 
+    elseif Config.MySQL == 'oxmysql' then
+        return exports["oxmysql"]:prepare(query, variables, cb) 
+    end
+end
+
+TwoNa.MySQL.Sync.Fetch = function(query, variables) 
+    local result = {}
+    local finishedQuery = false
+    local cb = function(r) 
+        result = r
+        finishedQuery = true
+    end
+
+    if Config.MySQL == 'mysql-async' then
+        exports["mysql-async"]:mysql_fetch_all(query, variables, cb) 
+    elseif Config.MySQL == 'oxmysql' then
+        exports["oxmysql"]:prepare(query, variables, cb)
+    end
+
+    while not finishedQuery do
+        Citizen.Wait(0)
+    end
+
+    return result
+end
+
+TwoNa.MySQL.Async.Execute = function(query, variables, cb) 
+    if not cb or type(cb) ~= 'function' then 
+        cb = function() end
+    end
+
+    if Config.MySQL == 'mysql-async' then
+        return exports["mysql-async"]:mysql_execute(query, variables, cb) 
+    elseif Config.MySQL == 'oxmysql' then
+        return exports["oxmysql"]:execute_async(query, variables, cb)
+    end
+end
+
+TwoNa.MySQL.Sync.Execute = function(query, variables) 
+    local result = {}
+    local finishedQuery = false
+    local cb = function(r) 
+        result = r
+        finishedQuery = true
+    end
+
+    if Config.MySQL == 'mysql-async' then
+        exports["mysql-async"]:mysql_execute(query, variables, cb) 
+    elseif Config.MySQL == 'oxmysql' then
+        exports["oxmysql"]:execute_async(query, variables, cb)
+    end
+
+    while not finishedQuery do
+        Citizen.Wait(0)
+    end
+    
+    return result
 end
 
 TwoNa.GetIdentifier = function(source) 
@@ -73,13 +129,44 @@ TwoNa.GetPlayer = function(source)
 end
 
 TwoNa.GetAllVehicles = function() 
-    -- TODO:
+    local vehicles = {}
+
+    if Config.Framework == 'ESX' then
+        local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM vs_cars", {})
+
+        for k, v in ipairs(data) do 
+            vehicles[v.model] = {
+                model = v.model,
+                name = v.name,
+                category = v.category,
+                price = v.price
+            }
+        end
+        
+    elseif Config.Framework == 'QB' then 
+        for k,v in ipairs(TwoNa.Framework.Shared.Vehicles) do
+            vehicles[k] = {
+                model = k,
+                name = v.name,
+                category = v.category,
+                price = v.price
+            } 
+        end
+    end
+
+    return vehicles
 end
 
 TwoNa.CheckUpdate = function() 
-    PerformHttpRequest("https://raw.githubusercontent.com/tunasayin/2na_core/main/version.txt", function(errorCode, data, headers) 
-        if data ~= nil then
+    PerformHttpRequest("https://api.github.com/repos/tunasayin/2na_core/releases/latest", function(errorCode, rawData, headers) 
+        if rawData ~= nil then
+            local data = json.decode(tostring(rawData))
+            local version = string.gsub(data.tag_name, "v", "")
+            local installedVersion = GetResourceMetadata(GetCurrentResourceName(), "version", 0)
 
+            if installedVersion == version then
+                TwoNa.Log("An update is available for 2na_core. Download update from: " .. data.html_url) 
+            end
         end
     end)
 end

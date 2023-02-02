@@ -13,4 +13,6 @@ Citizen.CreateThread(function()
 
         Citizen.Wait(10)
     end
+
+    TwoNa.GetAllVehicles()
 end)
