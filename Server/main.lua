@@ -110,7 +110,7 @@ TwoNa.GetPlayer = function(source)
     elseif Config.Framework == 'QB' then
         local xPlayer = TwoNa.Framework.Functions.GetPlayer(source)
 
-        player["name"] = xPlayer.charinfo.firstname .. " " .. xPlayer.charinfo.lastame
+        player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
         player["accounts"] = xPlayer.money
 
         player.getMoney = function()
@@ -205,6 +205,12 @@ TwoNa.GetPlayerVehicles = function(source)
         local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM player_vehicles WHERE license = @identifier", { ["@identifier"] = identifier })
 
         for k,v in ipairs(data) do
+            if v.stored == 1 then
+                v.stored = true
+            else
+                v.stored = false 
+            end
+
             table.insert(playerVehicles, {
                 name = vehicles[v.vehicle].name,
                 model = vehicles[v.vehicle].model,
@@ -213,7 +219,7 @@ TwoNa.GetPlayerVehicles = function(source)
                 fuel = v.fuel,
                 price = vehicles[v.vehicle].price or -1,
                 properties = json.decode(v.mods),
-                stored = v.stored or nil,
+                stored = v.stored,
                 garage = v.garage
             })
         end
