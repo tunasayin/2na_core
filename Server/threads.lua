@@ -1,7 +1,7 @@
 Citizen.CreateThread(function() 
     while TwoNa.Framework == nil do
         if Config.Framework == 'ESX' then
-            TriggerEvent("esx:getSharedObject", function(framewok) 
+            TriggerEvent("esx:getSharedObject", function(framewok)
                 TwoNa.Framework = framewok
             end)
         else if Config.Framework == 'QB' then
@@ -9,6 +9,6 @@ Citizen.CreateThread(function()
             end
         end
 
-        Citizen.Wait(10)
+        Citizen.Wait(1)
     end
 end)

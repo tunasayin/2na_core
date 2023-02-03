@@ -4,9 +4,8 @@ Citizen.CreateThread(function()
             TriggerEvent("esx:getSharedObject", function(framewok) 
                 TwoNa.Framework = framewok
             end)
-
         elseif Config.Framework == 'QB' then
-            exports["qb-core"]:GetCoreObject()
+            TwoNa.Framework = exports["qb-core"]:GetCoreObject()
         end
 
         Citizen.Wait(10)
