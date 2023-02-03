@@ -1,4 +1,4 @@
 Config = {}
 
-Config.MySQL = "mysql-async"
-Config.Framework = "ESX" -- Suports both ESX and QB
+Config.MySQL = "oxmysql" -- Suports both mysql-async and oxmysql
+Config.Framework = "QB" -- Suports both ESX and QB

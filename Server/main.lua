@@ -42,7 +42,7 @@ TwoNa.MySQL.Sync.Fetch = function(query, variables)
     if Config.MySQL == 'mysql-async' then
         exports["mysql-async"]:mysql_fetch_all(query, variables, cb) 
     elseif Config.MySQL == 'oxmysql' then
-        exports["oxmysql"]:prepare(query, variables, cb)
+        exports["oxmysql"]:execute(query, variables, cb)
     end
 
     while not finishedQuery do
@@ -75,7 +75,7 @@ TwoNa.MySQL.Sync.Execute = function(query, variables)
     if Config.MySQL == 'mysql-async' then
         exports["mysql-async"]:mysql_execute(query, variables, cb) 
     elseif Config.MySQL == 'oxmysql' then
-        exports["oxmysql"]:execute_async(query, variables, cb)
+        exports["oxmysql"]:execute(query, variables, cb)
     end
 
     while not finishedQuery do
@@ -90,7 +90,7 @@ TwoNa.GetPlayerIdentifier = function(source)
         local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
         return xPlayer.getIdentifier()
     elseif Config.Framework == 'QB' then
-        return TwoNa.Framework.Functions.GetIdentifier(source)
+        return TwoNa.Framework.Functions.GetIdentifier(source, 'license')
     end
 end
 
@@ -147,7 +147,7 @@ TwoNa.GetAllVehicles = function(force)
         end
         
     elseif Config.Framework == 'QB' then 
-        for k,v in ipairs(TwoNa.Framework.Shared.Vehicles) do
+        for k,v in pairs(TwoNa.Framework.Shared.Vehicles) do
             vehicles[k] = {
                 model = k,
                 name = v.name,
@@ -208,10 +208,10 @@ TwoNa.GetPlayerVehicles = function(source)
             table.insert(playerVehicles, {
                 name = vehicles[v.vehicle].name,
                 model = vehicles[v.vehicle].model,
-                category = v.category,
+                category = vehicles[v.vehicle].category,
                 plate = v.plate,
                 fuel = v.fuel,
-                price = vehicles[v.name].price or -1,
+                price = vehicles[v.vehicle].price or -1,
                 properties = json.decode(v.mods),
                 stored = v.stored or nil,
                 garage = v.garage
@@ -247,7 +247,7 @@ TwoNa.UpdatePlayerVehicle = function(source, plate, vehicleData)
             ["@plate"] = plate
         })
     elseif Config.Framework == 'QB' then
-        TwoNa.MySQL.Sync.Execute("UPDATE player_vehicles SET mods = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate", {
+        TwoNa.MySQL.Sync.Execute("UPDATE player_vehicles SET mods = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate", {
             ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
             ["@fuel"] = vehicleData.fuel or targetVehicle.fuel,
             ["@stored"] = vehicleData.stored,
