@@ -11,8 +11,10 @@ TwoNa.RegisterServerCallback = function(name, func)
     TwoNa.Callbacks[name] = func
 end
 
-TwoNa.TriggerCallback = function() 
-    -- TODO
+TwoNa.TriggerCallback = function(name, source, payload, cb) 
+    if TwoNa.Callbacks[name] then 
+        TwoNa.Callbacks[name](source, payload, cb)
+    end
 end
 
 TwoNa.Log = function(str) 
