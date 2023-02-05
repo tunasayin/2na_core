@@ -152,7 +152,7 @@ TwoNa.GetPlayerFromIdentifier = function(identifier)
         player.removeMoney = xPlayer.removeMoney
 
     elseif Config.Framework == 'QB' then
-        local xPlayer = TwoNa.Framework.Functions.GetPlayer(QBCore.Functions.GetSource(identifier))
+        local xPlayer = TwoNa.Framework.Functions.GetPlayer(TwoNa.Framework.Functions.GetSource(identifier))
 
         player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
         player["accounts"] = xPlayer.money
