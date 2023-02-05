@@ -129,6 +129,58 @@ TwoNa.GetPlayer = function(source)
     return player
 end
 
+TwoNa.GetPlayerFromIdentifier = function(identifier) 
+    local player = {}
+
+    if Config.Framework == 'ESX' then
+        local xPlayer = TwoNa.Framework.GetPlayerFromIdentifier(identifier)
+
+        player["name"] = xPlayer.getName()
+        player["accounts"] = xPlayer.getAccounts()
+
+        player.getBank = function() 
+            return xPlayer.getAccount("bank")
+        end
+        player.getMoney = xPlayer.getMoney
+        player.addBank = function(amount) 
+            xPlayer.addAccountMoney('bank', amount)
+        end
+        player.addMoney = xPlayer.addMoney
+        player.removeBank = function(amount) 
+            xplayer.removeAccountMoney('bank', amount)
+        end
+        player.removeMoney = xPlayer.removeMoney
+
+    elseif Config.Framework == 'QB' then
+        local xPlayer = TwoNa.Framework.Functions.GetPlayer(QBCore.Functions.GetSource(identifier))
+
+        player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
+        player["accounts"] = xPlayer.money
+
+        player.getBank = function() 
+            return xPlayer.Functions.GetMoney("bank")
+        end
+        player.getMoney = function()
+            return xPlayer.Functions.GetMoney("cash") 
+        end
+        player.addBank = function(amount)
+            return xPlayer.Functions.AddMoney("bank", amount, "") 
+        end
+        player.addMoney = function(amount)
+            return xPlayer.Functions.AddMoney("cash", amount, "") 
+        end
+        player.removeBank = function(amount) 
+            return xPlayer.Functions.RemoveMoney("bank", amount, "")
+        end
+        player.removeMoney = function(amount) 
+            return xPlayer.Functions.RemoveMoney("cash", amount, "")
+        end
+
+    end
+
+    return player
+end
+
 TwoNa.GetAllVehicles = function(force)
     if TwoNa.Vehicles and not force then 
         return TwoNa.Vehicles
