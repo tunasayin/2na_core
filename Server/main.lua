@@ -55,10 +55,6 @@ TwoNa.MySQL.Sync.Fetch = function(query, variables)
 end
 
 TwoNa.MySQL.Async.Execute = function(query, variables, cb) 
-    if not cb or type(cb) ~= 'function' then 
-        cb = function() end
-    end
-
     if Config.MySQL == 'mysql-async' then
         return exports["mysql-async"]:mysql_execute(query, variables, cb) 
     elseif Config.MySQL == 'oxmysql' then
