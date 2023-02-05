@@ -58,7 +58,7 @@ TwoNa.MySQL.Async.Execute = function(query, variables, cb)
     if Config.MySQL == 'mysql-async' then
         return exports["mysql-async"]:mysql_execute(query, variables, cb) 
     elseif Config.MySQL == 'oxmysql' then
-        return exports["oxmysql"]:execute_async(query, variables, cb)
+        return exports["oxmysql"]:update(query, variables, cb)
     end
 end
 
@@ -163,6 +163,7 @@ TwoNa.GetPlayerFromIdentifier = function(identifier)
             return xPlayer.Functions.AddMoney("bank", amount, "") 
         end
         player.addMoney = function(amount)
+            print(amount)
             return xPlayer.Functions.AddMoney("cash", amount, "") 
         end
         player.removeBank = function(amount) 
