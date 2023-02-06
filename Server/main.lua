@@ -1,6 +1,7 @@
 TwoNa = {}
 TwoNa.Callbacks = {}
 TwoNa.Framework = nil
+TwoNa.Functions = TwoNa_Functions
 TwoNa.Vehicles = nil
 TwoNa.MySQL = {
     Async = {},
@@ -293,27 +294,46 @@ TwoNa.UpdatePlayerVehicle = function(source, plate, vehicleData)
         return false
     end
 
+    local query = nil
     if Config.Framework == 'ESX' then
-        TwoNa.MySQL.Sync.Execute("UPDATE owned_vehicles SET vehicle = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate", {
-            ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
-            ["@fuel"] = vehicleData.fuel or targetVehicle.fuel,
-            ["@stored"] = vehicleData.stored,
-            ["@garage"] = vehicleData.garage,
-            ["@identifier"] = identifier,
-            ["@plate"] = plate
-        })
+        query = "UPDATE owned_vehicles SET vehicle = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate"
     elseif Config.Framework == 'QB' then
-        TwoNa.MySQL.Sync.Execute("UPDATE player_vehicles SET mods = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate", {
-            ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
-            ["@fuel"] = vehicleData.fuel or targetVehicle.fuel,
-            ["@stored"] = vehicleData.stored,
-            ["@garage"] = vehicleData.garage,
-            ["@identifier"] = identifier,
-            ["@plate"] = plate
-        })
+        query = "UPDATE player_vehicles SET mods = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate"
     end
 
-    return true
+    if query then 
+        TwoNa.MySQL.Sync.Execute(query, {
+        ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
+        ["@fuel"] = vehicleData.fuel or targetVehicle.fuel,
+        ["@stored"] = vehicleData.stored,
+        ["@garage"] = vehicleData.garage,
+        ["@identifier"] = identifier,
+        ["@plate"] = plate
+        })
+
+        return true
+    else
+        return false
+    end
+end
+
+TwoNa.UpdateVehicleOwner = function(plate, target) 
+    local identifier = TwoNa.GetPlayerIdentifier(target)
+
+    local query = nil
+    if Config.Framework == 'ESX' then
+        query = "UPDATE owned_vehicles SET owner = @newOwner WHERE plate = @plate" 
+    elseif Config.Framework == 'QB' then
+        query = "UPDATE player_vehicles SET license = @newOwner WHERE plate = @plate"
+    end
+
+    if query then 
+        TwoNa.MySQL.Sync.Execute(query, { ["@newOwner"] = identifier, ["@plate"] = plate })
+
+        return true
+    else
+        return false
+    end
 end
 
 TwoNa.CheckUpdate = function() 

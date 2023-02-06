@@ -2,6 +2,7 @@ TwoNa = {}
 TwoNa.Callbacks = {}
 TwoNa.Framework = nil
 TwoNa.Game = {}
+TwoNa.Functions = TwoNa_Functions
 
 TwoNa.TriggerServerCallback = function(name, payload, func) 
     TwoNa.Callbacks[name] = func

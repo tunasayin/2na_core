@@ -1,3 +1,5 @@
-function generateVehicleId(model, licensePlate)
-    return string.lower(string.gsub(licensePlate, "%s+", "")) .. "_" .. string.gsub(model, "-", "")
+TwoNa_Functions = {}
+
+TwoNa_Functions.Trim = function(str)
+   return (str:gsub("^%s*(.-)%s*$", "%1"))
 end
