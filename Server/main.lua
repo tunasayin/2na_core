@@ -321,6 +321,10 @@ end
 TwoNa.UpdateVehicleOwner = function(plate, target) 
     local identifier = TwoNa.GetPlayerIdentifier(target)
 
+    if not identifier then 
+        return false
+    end
+
     local query = nil
     if Config.Framework == 'ESX' then
         query = "UPDATE owned_vehicles SET owner = @newOwner WHERE plate = @plate" 
