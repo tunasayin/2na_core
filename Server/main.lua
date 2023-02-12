@@ -164,7 +164,6 @@ TwoNa.GetPlayerFromIdentifier = function(identifier)
             return xPlayer.Functions.AddMoney("bank", amount, "") 
         end
         player.addMoney = function(amount)
-            print(amount)
             return xPlayer.Functions.AddMoney("cash", amount, "") 
         end
         player.removeBank = function(amount) 
@@ -187,7 +186,7 @@ TwoNa.GetAllVehicles = function(force)
     local vehicles = {}
 
     if Config.Framework == 'ESX' then
-        local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM vs_cars", {})
+        local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM vehicles", {})
 
         for k, v in ipairs(data) do 
             vehicles[v.model] = {
@@ -228,6 +227,20 @@ TwoNa.GetVehicleByName = function(name)
     return targetVehicle
 end
 
+TwoNa.GetVehicleByHash = function(hash) 
+    local vehicles = TwoNa.GetAllVehicles(false)
+    local targetVehicle = nil
+
+    for k,v in pairs(vehicles) do
+        if GetHashKey(v.model) == hash then 
+            targetVehicle = v
+            break
+        end
+    end
+
+    return targetVehicle
+end
+
 TwoNa.GetPlayerVehicles = function(source) 
     local identifier = TwoNa.GetPlayerIdentifier(source)
     local vehicles = TwoNa.GetAllVehicles(false)
@@ -237,17 +250,24 @@ TwoNa.GetPlayerVehicles = function(source)
         local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM owned_vehicles WHERE owner = @identifier", { ["@identifier"] = identifier })
 
         for k,v in ipairs(data) do
-            if vehicles[v.name] == nil then 
-                vehicles[v.name] = TwoNa.GetVehicleByName(v.name)
+            local vehicleDetails = TwoNa.GetVehicleByHash(json.decode(v.vehicle).model)
+
+            if not vehicleDetails then 
+                vehicleDetails = {
+                    name = nil,
+                    model = json.decode(v.vehicle).model,
+                    category = nil,
+                    price = nil
+                }
             end
 
             table.insert(playerVehicles, {
-                name = v.name,
-                model = vehicles[v.name].model,
-                category = v.category,
+                name = vehicleDetails.name,
+                model = vehicleDetails.model,
+                category = vehicleDetails.category,
                 plate = v.plate,
-                fuel = v.fuel,
-                price = vehicles[v.name].price,
+                fuel = v.fuel or 100,
+                price = vehicleDetails.price,
                 properties = json.decode(v.vehicle),
                 stored = v.stored,
                 garage = v.garage or nil
@@ -297,15 +317,14 @@ TwoNa.UpdatePlayerVehicle = function(source, plate, vehicleData)
 
     local query = nil
     if Config.Framework == 'ESX' then
-        query = "UPDATE owned_vehicles SET vehicle = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate"
+        query = "UPDATE owned_vehicles SET vehicle = @props, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate"
     elseif Config.Framework == 'QB' then
-        query = "UPDATE player_vehicles SET mods = @props, fuel = @fuel, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate"
+        query = "UPDATE player_vehicles SET mods = @props, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate"
     end
 
     if query then 
         TwoNa.MySQL.Sync.Execute(query, {
         ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
-        ["@fuel"] = vehicleData.fuel or targetVehicle.fuel,
         ["@stored"] = vehicleData.stored,
         ["@garage"] = vehicleData.garage,
         ["@identifier"] = identifier,
