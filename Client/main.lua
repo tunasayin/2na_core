@@ -55,16 +55,27 @@ TwoNa.Game.ApplyVehicleDamage = function(vehicle, damage)
     SetVehiclePetrolTankHealth(vehicle, damage.petrolTankHealth)
     SetVehicleDirtLevel(vehicle, damage.dirt)
 
+    if damage.wheel == nil then 
+        damage.wheel = {1000,1000,1000,1000,1000}
+    end
+    if damage.wheelBurst == nil then 
+        damage.wheelBurst = {false,false,false,false,false}
+    end
+    if damage.door == nil then 
+        damage.door = {false,false,false,false,false}
+    end
+
     for i = 0, 5 do 
         SetVehicleWheelHealth(vehicle, i, damage.wheel[i])
-        SetVehicleWheelHealth(vehicle, i, damage.wheel[i])
-        if vehicle.wheelBurst[i] then 
+        if damage.wheelBurst[i] then 
             SetVehicleTyreBurst(vehicle, i, true, 1000.0)
         end
-        if vehicles.door[i] then 
+        if damage.door[i] then 
             SetVehicleDoorBroken(vehicle, i, true)
         end
     end
+
+    SetVehicleEngineOn(vehicle, true,true,false)
 end
 
 TwoNa.Draw3DText = function(x, y, z, scale, text) 
