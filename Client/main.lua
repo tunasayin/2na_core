@@ -26,58 +26,6 @@ TwoNa.Game.SetVehicleProperties = function(vehicle, props)
     end
 end
 
-TwoNa.Game.GetVehicleDamage = function(vehicle)
-    local damage = {}
-
-    damage["health"] = GetEntityHealth(vehicle)
-    damage["engineHealth"] = GetVehicleEngineHealth(vehicle)
-    damage["bodyHealth"] = GetVehicleBodyHealth(vehicle)
-    damage["petrolTankHealth"] = GetVehiclePetrolTankHealth(vehicle)
-    damage["dirt"] = GetVehicleDirtLevel(vehicle)
-    damage["headligths"] = {GetIsLeftVehicleHeadlightDamaged(vehicle), GetIsRightVehicleHeadlightDamaged(vehicle)}
-    damage["wheel"] = {}
-    damage["wheelBurst"] = {}
-    damage["door"] = {}
-
-    for i = 0, 5 do 
-        table.insert(damage.wheel, GetVehicleWheelHealth(vehicle, i))
-        table.insert(damage.wheelBurst, IsVehicleTyreBurst(vehicle, i, true))
-        table.insert(damage.door, IsVehicleDoorDamaged(vehicle, i))
-    end
-
-    return damage
-end
-
-TwoNa.Game.ApplyVehicleDamage = function(vehicle, damage)
-    SetEntityHealth(vehicle, damage.health) 
-    SetVehicleEngineHealth(vehicle, damage.engineHealth)
-    SetVehicleBodyHealth(vehicle, damage.bodyHealth)
-    SetVehiclePetrolTankHealth(vehicle, damage.petrolTankHealth)
-    SetVehicleDirtLevel(vehicle, damage.dirt)
-
-    if damage.wheel == nil then 
-        damage.wheel = {1000,1000,1000,1000,1000}
-    end
-    if damage.wheelBurst == nil then 
-        damage.wheelBurst = {false,false,false,false,false}
-    end
-    if damage.door == nil then 
-        damage.door = {false,false,false,false,false}
-    end
-
-    for i = 0, 5 do 
-        SetVehicleWheelHealth(vehicle, i, damage.wheel[i])
-        if damage.wheelBurst[i] then 
-            SetVehicleTyreBurst(vehicle, i, true, 1000.0)
-        end
-        if damage.door[i] then 
-            SetVehicleDoorBroken(vehicle, i, true)
-        end
-    end
-
-    SetVehicleEngineOn(vehicle, true,true,false)
-end
-
 TwoNa.Draw3DText = function(x, y, z, scale, text) 
     local onScreen,_x,_y=World3dToScreen2d(x,y,z)
     local px,py,pz=table.unpack(GetGameplayCamCoords())
