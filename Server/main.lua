@@ -1,5 +1,6 @@
 TwoNa = {}
 TwoNa.Callbacks = {}
+TwoNa.Players = {}
 TwoNa.Framework = nil
 TwoNa.Functions = TwoNa_Functions
 TwoNa.Vehicles = nil
@@ -84,98 +85,130 @@ TwoNa.MySQL.Sync.Execute = function(query, variables)
     return result
 end
 
-TwoNa.GetPlayerIdentifier = function(source) 
-    if Config.Framework == 'ESX' then
-        local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
-        return xPlayer.getIdentifier()
-    elseif Config.Framework == 'QB' then
-        return TwoNa.Framework.Functions.GetIdentifier(source, 'license')
+TwoNa.IsPlayerAvailable = function(source) 
+    local available = false
+
+    if type(source) == 'number' then 
+        if Config.Framework == 'ESX' then
+            available = TwoNa.Framework.GetPlayerFromId(source) ~= nil
+        elseif Config.Framework == 'QB' then
+            available = TwoNa.Framework.Functions.GetPlayer(source) ~= nil
+        end
+    elseif type(source) == 'string' then
+        if Config.Framework == 'ESX' then
+            available = TwoNa.Framework.GetPlayerFromIdentifier(identifier) ~= nil
+        elseif Config.Framework == 'QB' then
+            available = TwoNa.Framework.Functions.GetSource(identifier) ~= nil
+        end
+    end
+
+    return available
+end
+
+TwoNa.GetPlayerIdentifier = function(source)
+    if TwoNa.IsPlayerAvailable(source) then
+        if Config.Framework == 'ESX' then
+            local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
+            return xPlayer.getIdentifier()
+        elseif Config.Framework == 'QB' then
+            return TwoNa.Framework.Functions.GetIdentifier(source, 'license')
+        end
+    else
+        return nil
     end
 end
 
 TwoNa.GetPlayer = function(source) 
-    local player = {}
+    if TwoNa.IsPlayerAvailable(source) then 
+        local player = {}
 
-    if Config.Framework == 'ESX' then
-        local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
+        if Config.Framework == 'ESX' then
+            local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
 
-        player["name"] = xPlayer.getName()
-        player["accounts"] = xPlayer.getAccounts()
+            player["name"] = xPlayer.getName()
+            player["accounts"] = xPlayer.getAccounts()
 
-        player.getMoney = xPlayer.getMoney
-        player.addMoney = xPlayer.addMoney
-        player.removeMoney = xPlayer.removeMoney
+            player.getMoney = xPlayer.getMoney
+            player.addMoney = xPlayer.addMoney
+            player.removeMoney = xPlayer.removeMoney
 
-    elseif Config.Framework == 'QB' then
-        local xPlayer = TwoNa.Framework.Functions.GetPlayer(source)
+        elseif Config.Framework == 'QB' then
+            local xPlayer = TwoNa.Framework.Functions.GetPlayer(source)
 
-        player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
-        player["accounts"] = xPlayer.money
+            player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
+            player["accounts"] = xPlayer.money
 
-        player.getMoney = function()
-            return xPlayer.Functions.GetMoney("cash") 
+            player.getMoney = function()
+                return xPlayer.Functions.GetMoney("cash") 
+            end
+            player.addMoney = function(amount)
+                return xPlayer.Functions.AddMoney("cash", amount, "") 
+            end
+            player.removeMoney = function(amount) 
+                return xPlayer.Functions.RemoveMoney("cash", amount, "")
+            end
         end
-        player.addMoney = function(amount)
-            return xPlayer.Functions.AddMoney("cash", amount, "") 
-        end
-        player.removeMoney = function(amount) 
-            return xPlayer.Functions.RemoveMoney("cash", amount, "")
-        end
+
+        return player
+    else
+        return nil
     end
-
-    return player
 end
 
 TwoNa.GetPlayerFromIdentifier = function(identifier) 
-    local player = {}
+    if TwoNa.IsPlayerAvailable(identifier) then 
+        local player = {}
 
-    if Config.Framework == 'ESX' then
-        local xPlayer = TwoNa.Framework.GetPlayerFromIdentifier(identifier)
+        if Config.Framework == 'ESX' then
+            local xPlayer = TwoNa.Framework.GetPlayerFromIdentifier(identifier)
 
-        player["name"] = xPlayer.getName()
-        player["accounts"] = xPlayer.getAccounts()
+            player["name"] = xPlayer.getName()
+            player["accounts"] = xPlayer.getAccounts()
 
-        player.getBank = function() 
-            return xPlayer.getAccount("bank")
-        end
-        player.getMoney = xPlayer.getMoney
-        player.addBank = function(amount) 
-            xPlayer.addAccountMoney('bank', amount)
-        end
-        player.addMoney = xPlayer.addMoney
-        player.removeBank = function(amount) 
-            xplayer.removeAccountMoney('bank', amount)
-        end
-        player.removeMoney = xPlayer.removeMoney
+            player.getBank = function() 
+                return xPlayer.getAccount("bank")
+            end
+            player.getMoney = xPlayer.getMoney
+            player.addBank = function(amount) 
+                xPlayer.addAccountMoney('bank', amount)
+            end
+            player.addMoney = xPlayer.addMoney
+            player.removeBank = function(amount) 
+                xplayer.removeAccountMoney('bank', amount)
+            end
+            player.removeMoney = xPlayer.removeMoney
 
-    elseif Config.Framework == 'QB' then
-        local xPlayer = TwoNa.Framework.Functions.GetPlayer(TwoNa.Framework.Functions.GetSource(identifier))
+        elseif Config.Framework == 'QB' then
+            local xPlayer = TwoNa.Framework.Functions.GetPlayer(TwoNa.Framework.Functions.GetSource(identifier))
 
-        player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
-        player["accounts"] = xPlayer.money
+            player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
+            player["accounts"] = xPlayer.money
 
-        player.getBank = function() 
-            return xPlayer.Functions.GetMoney("bank")
-        end
-        player.getMoney = function()
-            return xPlayer.Functions.GetMoney("cash") 
-        end
-        player.addBank = function(amount)
-            return xPlayer.Functions.AddMoney("bank", amount, "") 
-        end
-        player.addMoney = function(amount)
-            return xPlayer.Functions.AddMoney("cash", amount, "") 
-        end
-        player.removeBank = function(amount) 
-            return xPlayer.Functions.RemoveMoney("bank", amount, "")
-        end
-        player.removeMoney = function(amount) 
-            return xPlayer.Functions.RemoveMoney("cash", amount, "")
+            player.getBank = function() 
+                return xPlayer.Functions.GetMoney("bank")
+            end
+            player.getMoney = function()
+                return xPlayer.Functions.GetMoney("cash") 
+            end
+            player.addBank = function(amount)
+                return xPlayer.Functions.AddMoney("bank", amount, "") 
+            end
+            player.addMoney = function(amount)
+                return xPlayer.Functions.AddMoney("cash", amount, "") 
+            end
+            player.removeBank = function(amount) 
+                return xPlayer.Functions.RemoveMoney("bank", amount, "")
+            end
+            player.removeMoney = function(amount) 
+                return xPlayer.Functions.RemoveMoney("cash", amount, "")
+            end
+
         end
 
+        return player
+    else
+        return nil
     end
-
-    return player
 end
 
 TwoNa.GetAllVehicles = function(force)
@@ -243,95 +276,106 @@ end
 
 TwoNa.GetPlayerVehicles = function(source) 
     local identifier = TwoNa.GetPlayerIdentifier(source)
-    local vehicles = TwoNa.GetAllVehicles(false)
-    local playerVehicles = {}
 
-    if Config.Framework == 'ESX' then
-        local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM owned_vehicles WHERE owner = @identifier", { ["@identifier"] = identifier })
+    if identifier then 
+        local vehicles = TwoNa.GetAllVehicles(false)
+        local playerVehicles = {}
 
-        for k,v in ipairs(data) do
-            local vehicleDetails = TwoNa.GetVehicleByHash(json.decode(v.vehicle).model)
+        if Config.Framework == 'ESX' then
+            local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM owned_vehicles WHERE owner = @identifier", { ["@identifier"] = identifier })
 
-            if not vehicleDetails then 
-                vehicleDetails = {
-                    name = nil,
-                    model = json.decode(v.vehicle).model,
-                    category = nil,
-                    price = nil
-                }
+            for k,v in ipairs(data) do
+                local vehicleDetails = TwoNa.GetVehicleByHash(json.decode(v.vehicle).model)
+
+                if not vehicleDetails then 
+                    vehicleDetails = {
+                        name = nil,
+                        model = json.decode(v.vehicle).model,
+                        category = nil,
+                        price = nil
+                    }
+                end
+
+                table.insert(playerVehicles, {
+                    name = vehicleDetails.name,
+                    model = vehicleDetails.model,
+                    category = vehicleDetails.category,
+                    plate = v.plate,
+                    fuel = v.fuel or 100,
+                    price = vehicleDetails.price,
+                    properties = json.decode(v.vehicle),
+                    stored = v.stored,
+                    garage = v.garage or nil
+                })
             end
+        elseif Config.Framework == 'QB'  then
+            local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM player_vehicles WHERE license = @identifier", { ["@identifier"] = identifier })
 
-            table.insert(playerVehicles, {
-                name = vehicleDetails.name,
-                model = vehicleDetails.model,
-                category = vehicleDetails.category,
-                plate = v.plate,
-                fuel = v.fuel or 100,
-                price = vehicleDetails.price,
-                properties = json.decode(v.vehicle),
-                stored = v.stored,
-                garage = v.garage or nil
-            })
-        end
-    elseif Config.Framework == 'QB'  then
-        local data = TwoNa.MySQL.Sync.Fetch("SELECT * FROM player_vehicles WHERE license = @identifier", { ["@identifier"] = identifier })
+            for k,v in ipairs(data) do
+                if v.stored == 1 then
+                    v.stored = true
+                else
+                    v.stored = false 
+                end
 
-        for k,v in ipairs(data) do
-            if v.stored == 1 then
-                v.stored = true
-            else
-                v.stored = false 
+                table.insert(playerVehicles, {
+                    name = vehicles[v.vehicle].name,
+                    model = vehicles[v.vehicle].model,
+                    category = vehicles[v.vehicle].category,
+                    plate = v.plate,
+                    fuel = v.fuel,
+                    price = vehicles[v.vehicle].price or -1,
+                    properties = json.decode(v.mods),
+                    stored = v.stored,
+                    garage = v.garage
+                })
             end
-
-            table.insert(playerVehicles, {
-                name = vehicles[v.vehicle].name,
-                model = vehicles[v.vehicle].model,
-                category = vehicles[v.vehicle].category,
-                plate = v.plate,
-                fuel = v.fuel,
-                price = vehicles[v.vehicle].price or -1,
-                properties = json.decode(v.mods),
-                stored = v.stored,
-                garage = v.garage
-            })
         end
+
+        return playerVehicles
+    else
+        return nil
     end
-
-    return playerVehicles
 end
 
 TwoNa.UpdatePlayerVehicle = function(source, plate, vehicleData) 
     local identifier = TwoNa.GetPlayerIdentifier(source)
-    local playerVehicles = TwoNa.GetPlayerVehicles(source)
-    local targetVehicle = nil
 
-    for k,v in ipairs(playerVehicles) do
-         if v.plate == plate then
-            targetVehicle = v 
+    if identifier then 
+        local playerVehicles = TwoNa.GetPlayerVehicles(source)
+        local targetVehicle = nil
+
+        for k,v in ipairs(playerVehicles) do
+             if v.plate == plate then
+                targetVehicle = v 
+            end
         end
-    end
 
-    if not targetVehicle then 
-        return false
-    end
+        if not targetVehicle then 
+            return false
+        end
 
-    local query = nil
-    if Config.Framework == 'ESX' then
-        query = "UPDATE owned_vehicles SET vehicle = @props, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate"
-    elseif Config.Framework == 'QB' then
-        query = "UPDATE player_vehicles SET mods = @props, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate"
-    end
+        local query = nil
+        if Config.Framework == 'ESX' then
+            query = "UPDATE owned_vehicles SET vehicle = @props, stored = @stored, garage = @garage WHERE owner = @identifier AND plate = @plate"
+        elseif Config.Framework == 'QB' then
+            query = "UPDATE player_vehicles SET mods = @props, stored = @stored, garage = @garage WHERE license = @identifier AND plate = @plate"
+        end
 
-    if query then 
-        TwoNa.MySQL.Sync.Execute(query, {
-        ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
-        ["@stored"] = vehicleData.stored,
-        ["@garage"] = vehicleData.garage,
-        ["@identifier"] = identifier,
-        ["@plate"] = plate
-        })
+        if query then 
+            TwoNa.MySQL.Sync.Execute(query, {
+            ["@props"] = json.encode(vehicleData.properties or targetVehicle.properties),
+            ["@stored"] = vehicleData.stored,
+            ["@garage"] = vehicleData.garage,
+            ["@identifier"] = identifier,
+            ["@plate"] = plate
+            })
 
-        return true
+            return true
+        else
+            return false
+        end
+
     else
         return false
     end
