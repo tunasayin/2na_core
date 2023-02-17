@@ -129,7 +129,7 @@ TwoNa.CreatePlayer = function(xPlayer)
         player["name"] = xPlayer.getName()
         player["accounts"] = {}
 
-        for _,v in iapirs(xPlayer.getAccounts()) do 
+        for _,v in ipairs(xPlayer.getAccounts()) do 
             if v.name == 'bank' then 
                 player.accounts["bank"] = v.money
             elseif v.name == 'money' then

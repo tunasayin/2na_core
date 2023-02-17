@@ -5,7 +5,7 @@ game 'gta5'
 author 'Tuna#1565'
 description 'Garage script'
 
-version '0.1.9'
+version '0.2.0'
 
 shared_scripts {
 	'Config.lua',
