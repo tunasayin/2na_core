@@ -118,38 +118,78 @@ TwoNa.GetPlayerIdentifier = function(source)
     end
 end
 
-TwoNa.GetPlayer = function(source) 
-    if TwoNa.IsPlayerAvailable(source) then 
-        local player = {}
+TwoNa.CreatePlayer = function(xPlayer) 
+    local player = {}
 
-        if Config.Framework == 'ESX' then
-            local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
+    if not xPlayer then 
+        return nil
+    end
 
-            player["name"] = xPlayer.getName()
-            player["accounts"] = xPlayer.getAccounts()
+    if Config.Framework == 'ESX' then 
+        player["name"] = xPlayer.getName()
+        player["accounts"] = {}
 
-            player.getMoney = xPlayer.getMoney
-            player.addMoney = xPlayer.addMoney
-            player.removeMoney = xPlayer.removeMoney
-
-        elseif Config.Framework == 'QB' then
-            local xPlayer = TwoNa.Framework.Functions.GetPlayer(source)
-
-            player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
-            player["accounts"] = xPlayer.money
-
-            player.getMoney = function()
-                return xPlayer.Functions.GetMoney("cash") 
-            end
-            player.addMoney = function(amount)
-                return xPlayer.Functions.AddMoney("cash", amount, "") 
-            end
-            player.removeMoney = function(amount) 
-                return xPlayer.Functions.RemoveMoney("cash", amount, "")
+        for _,v in iapirs(xPlayer.getAccounts()) do 
+            if v.name == 'bank' then 
+                player.accounts["bank"] = v.money
+            elseif v.name == 'money' then
+                player.accounts["cash"] = v.money
             end
         end
 
-        return player
+        player.getBank = function() 
+            return xPlayer.getAccount("bank") 
+        end
+        player.getMoney = xPlayer.getMoney
+        player.addBank = function(amount) 
+            xPlayer.addAccountMoney('bank', amount) 
+        end
+        player.addMoney = xPlayer.addMoney
+        player.removeBank = function(amount) 
+            xPlayer.removeAccountMoney('bank', amount) 
+        end
+        player.removeMoney = xPlayer.removeMoney
+    elseif Config.Framework == 'QB' then
+        player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
+        player["accounts"] = {
+            bank =  xPlayer.money.bank,
+            cash = xPlayer.money.cash
+        }
+
+        player.getBank = function() 
+            return xPlayer.Functions.GetMoney("bank")
+        end
+        player.getMoney = function()
+            return xPlayer.Functions.GetMoney("cash") 
+        end
+        player.addBank = function(amount)
+            return xPlayer.Functions.AddMoney("bank", amount, "") 
+        end
+        player.addMoney = function(amount)
+            return xPlayer.Functions.AddMoney("cash", amount, "") 
+        end
+        player.removeBank = function(amount) 
+            return xPlayer.Functions.RemoveMoney("bank", amount, "")
+        end
+        player.removeMoney = function(amount) 
+            return xPlayer.Functions.RemoveMoney("cash", amount, "")
+        end
+    end
+
+    return player
+end
+
+TwoNa.GetPlayer = function(source) 
+    if TwoNa.IsPlayerAvailable(source) then 
+        local xPlayer = nil
+
+        if Config.Framework == 'ESX' then
+            xPlayer = TwoNa.Framework.GetPlayerFromId(source)
+        elseif Config.Framework == 'QB' then
+            xPlayer = TwoNa.Framework.Functions.GetPlayer(source)
+        end
+
+        return TwoNa.CreatePlayer(xPlayer)
     else
         return nil
     end
@@ -157,55 +197,15 @@ end
 
 TwoNa.GetPlayerFromIdentifier = function(identifier) 
     if TwoNa.IsPlayerAvailable(identifier) then 
-        local player = {}
+        local xPlayer = nil
 
         if Config.Framework == 'ESX' then
-            local xPlayer = TwoNa.Framework.GetPlayerFromIdentifier(identifier)
-
-            player["name"] = xPlayer.getName()
-            player["accounts"] = xPlayer.getAccounts()
-
-            player.getBank = function() 
-                return xPlayer.getAccount("bank")
-            end
-            player.getMoney = xPlayer.getMoney
-            player.addBank = function(amount) 
-                xPlayer.addAccountMoney('bank', amount)
-            end
-            player.addMoney = xPlayer.addMoney
-            player.removeBank = function(amount) 
-                xplayer.removeAccountMoney('bank', amount)
-            end
-            player.removeMoney = xPlayer.removeMoney
-
+            xPlayer = TwoNa.Framework.GetPlayerFromIdentifier(identifier)
         elseif Config.Framework == 'QB' then
-            local xPlayer = TwoNa.Framework.Functions.GetPlayer(TwoNa.Framework.Functions.GetSource(identifier))
-
-            player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
-            player["accounts"] = xPlayer.money
-
-            player.getBank = function() 
-                return xPlayer.Functions.GetMoney("bank")
-            end
-            player.getMoney = function()
-                return xPlayer.Functions.GetMoney("cash") 
-            end
-            player.addBank = function(amount)
-                return xPlayer.Functions.AddMoney("bank", amount, "") 
-            end
-            player.addMoney = function(amount)
-                return xPlayer.Functions.AddMoney("cash", amount, "") 
-            end
-            player.removeBank = function(amount) 
-                return xPlayer.Functions.RemoveMoney("bank", amount, "")
-            end
-            player.removeMoney = function(amount) 
-                return xPlayer.Functions.RemoveMoney("cash", amount, "")
-            end
-
+            xPlayer = TwoNa.Framework.Functions.GetPlayer(TwoNa.Framework.Functions.GetSource(identifier))
         end
 
-        return player
+        return TwoNa.CreatePlayer(xPlayer)
     else
         return nil
     end
