@@ -5,7 +5,7 @@ TwoNa.Game = {}
 TwoNa.Functions = TwoNa_Functions
 
 TwoNa.TriggerServerCallback = function(name, payload, func) 
-    if type(func) ~= 'function' then 
+    if not func then 
         func = function() end
     end
 
