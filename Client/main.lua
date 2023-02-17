@@ -5,6 +5,10 @@ TwoNa.Game = {}
 TwoNa.Functions = TwoNa_Functions
 
 TwoNa.TriggerServerCallback = function(name, payload, func) 
+    if type(func) ~= 'function' then 
+        func = function() end
+    end
+
     TwoNa.Callbacks[name] = func
 
     TriggerServerEvent("2na_core:Server:HandleCallback", name, payload)
