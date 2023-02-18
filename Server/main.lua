@@ -14,6 +14,10 @@ TwoNa.RegisterServerCallback = function(name, func)
 end
 
 TwoNa.TriggerCallback = function(name, source, payload, cb) 
+    if not cb then 
+        cb = function() end
+    end
+
     if TwoNa.Callbacks[name] then 
         TwoNa.Callbacks[name](source, payload, cb)
     end
@@ -147,7 +151,7 @@ TwoNa.CreatePlayer = function(xPlayer)
         player.birth = xPlayer.variables.dateofbirth
 
         player.getBank = function() 
-            return xPlayer.getAccount("bank") 
+            return xPlayer.getAccount("bank").money 
         end
         player.getMoney = xPlayer.getMoney
         player.addBank = function(amount) 
@@ -198,7 +202,7 @@ TwoNa.CreatePlayer = function(xPlayer)
     return player
 end
 
-TwoNa.GetPlayer = function(source) 
+TwoNa.GetPlayer = function(source)
     if TwoNa.IsPlayerAvailable(source) then 
         local xPlayer = nil
 
