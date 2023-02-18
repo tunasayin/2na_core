@@ -126,9 +126,8 @@ TwoNa.CreatePlayer = function(xPlayer)
     end
 
     if Config.Framework == 'ESX' then 
-        player["name"] = xPlayer.getName()
-        player["accounts"] = {}
-
+        player.name = xPlayer.getName()
+        player.accounts = {}
         for _,v in ipairs(xPlayer.getAccounts()) do 
             if v.name == 'bank' then 
                 player.accounts["bank"] = v.money
@@ -136,6 +135,16 @@ TwoNa.CreatePlayer = function(xPlayer)
                 player.accounts["cash"] = v.money
             end
         end
+        if xPlayer.sex == 'm' then 
+            player.gender = 'male' 
+        else
+            player.gender = 'female'
+        end
+        player.job = {
+            name = xPlayer.getJob().name,
+            label = xPlayer.getJob().label
+        }
+        player.birth = xPlayer.variables.dateofbirth
 
         player.getBank = function() 
             return xPlayer.getAccount("bank") 
@@ -150,11 +159,21 @@ TwoNa.CreatePlayer = function(xPlayer)
         end
         player.removeMoney = xPlayer.removeMoney
     elseif Config.Framework == 'QB' then
-        player["name"] = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
-        player["accounts"] = {
+        player.name = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
+        player.accounts = {
             bank =  xPlayer.money.bank,
             cash = xPlayer.money.cash
         }
+        if xPlayer.PlayerData.charinfo.gender == 0 then 
+            player.gender = 'male'
+        else
+            player.gender = 'female'
+        end
+        player.job = {
+            name = xPlayer.PlayerData.charinfo.job.name,
+            label = xPlayer.PlayerData.charinfo.job.label
+        }
+        player.birth = xPlayer.PlayerData.charinfo.birthdate
 
         player.getBank = function() 
             return xPlayer.Functions.GetMoney("bank")
