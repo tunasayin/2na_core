@@ -139,7 +139,7 @@ TwoNa.CreatePlayer = function(xPlayer)
                 player.accounts["cash"] = v.money
             end
         end
-        if xPlayer.sex == 'm' then 
+        if xPlayer.variables.sex == 'm' then 
             player.gender = 'male' 
         else
             player.gender = 'female'
@@ -165,8 +165,8 @@ TwoNa.CreatePlayer = function(xPlayer)
     elseif Config.Framework == 'QB' then
         player.name = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
         player.accounts = {
-            bank =  xPlayer.money.bank,
-            cash = xPlayer.money.cash
+            bank =  xPlayer.PlayerData.money.bank,
+            cash = xPlayer.PlayerData.money.cash
         }
         if xPlayer.PlayerData.charinfo.gender == 0 then 
             player.gender = 'male'
@@ -174,8 +174,8 @@ TwoNa.CreatePlayer = function(xPlayer)
             player.gender = 'female'
         end
         player.job = {
-            name = xPlayer.PlayerData.charinfo.job.name,
-            label = xPlayer.PlayerData.charinfo.job.label
+            name = xPlayer.PlayerData.job.name,
+            label = xPlayer.PlayerData.job.label
         }
         player.birth = xPlayer.PlayerData.charinfo.birthdate
 
