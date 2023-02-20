@@ -3,7 +3,7 @@ fx_version 'adamant'
 game 'gta5'
 
 author 'Tuna#1565'
-description 'Garage script'
+description 'Core script needed for almost all 2na scripts.'
 
 version '0.2.4'
 
