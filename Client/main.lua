@@ -30,7 +30,7 @@ TwoNa.Game.SetVehicleProperties = function(vehicle, props)
     end
 end
 
-TwoNa.Draw3DText = function(x, y, z, scale, text) 
+TwoNa.Draw3DText = function(x, y, z, scale, text, hideBox) 
     local onScreen,_x,_y=World3dToScreen2d(x,y,z)
     local px,py,pz=table.unpack(GetGameplayCamCoords())
 
@@ -43,9 +43,11 @@ TwoNa.Draw3DText = function(x, y, z, scale, text)
     AddTextComponentString(text)
     DrawText(_x,_y)
 
-    local factor = (string.len(text)) / 350
+    if not hideBox then 
+        local factor = (string.len(text)) / 350
 
-    DrawRect(_x,_y+0.0140, 0.025+ factor, 0.03, 0, 0, 0, 105)
+        DrawRect(_x,_y+0.0140, 0.025+ factor, 0.03, 0, 0, 0, 105)
+    end
 end
 
 exports("getSharedObject", function() 
