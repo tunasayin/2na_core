@@ -24,10 +24,6 @@ TwoNa.TriggerCallback = function(name, source, payload, cb)
     end
 end
 
-TwoNa.Log = function(str) 
-    print("[\x1b[44m2na_core\x1b[0m]: " .. str)
-end
-
 TwoNa.MySQL.Async.Fetch = function(query, variables, cb) 
     if not cb or type(cb) ~= 'function' then 
         cb = function() end
@@ -435,17 +431,12 @@ TwoNa.CheckUpdate = function()
             local version = string.gsub(data.tag_name, "v", "")
             local installedVersion = GetResourceMetadata(GetCurrentResourceName(), "version", 0)
 
-            if installedVersion == version then
-                TwoNa.Log("An update is available for 2na_core. Download update from: " .. data.html_url) 
+            if installedVersion ~= version then
+                TwoNa.Functions.Log("An update is available! You can download the update from this link: " .. data.html_url) 
             end
         end
     end)
 end
-
-TwoNa.RegisterServerCallback("2na_core:Server:GetFramework", function(_ , _, cb) 
-    print(Config.Framework)
-    cb(Config.Framework)
-end)
 
 exports("getSharedObject", function() 
     return TwoNa
