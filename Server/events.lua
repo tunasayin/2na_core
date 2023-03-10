@@ -9,4 +9,8 @@ AddEventHandler("2na_core:Server:HandleCallback", function(name, payload)
     end 
 end)
 
-AddEventHandler("onResourceStart", CheckUpdate)
+AddEventHandler("onResourceStart", function(resourceName)
+    if GetCurrentResourceName() == resourceName then 
+        TwoNa.CheckUpdate()
+    end 
+end)

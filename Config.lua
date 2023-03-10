@@ -1,5 +1,13 @@
 Config = {}
 
-Config.MySQL = "oxmysql" -- Supports both mysql-async and oxmysql
+local Framework = "" -- Supports both ESX and QBCore
+local Database = "" -- Supports both mysql-async and oxmysql
 
-Config.Framework = "ESX" -- Supports both ESX and QB
+
+
+--------- DO NOT MODIFY ---------
+
+Config.Framework = TwoNaShared.Functions.GetFramework(Framework)
+Config.Database =  TwoNaShared.Functions.GetDatabase(Database)
+
+---------------------------------
