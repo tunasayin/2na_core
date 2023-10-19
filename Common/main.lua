@@ -21,7 +21,7 @@ TwoNaShared.Functions.Includes = function(arr, target)
    return includes
 end
 
-TwoNaShared.Functions.GetFramework = function(framework) 
+TwoNaShared.Functions.GetFramework = function() 
    local availableFramework = nil
 
    for k,v in ipairs(TwoNaShared.Types.Frameworks) do 
@@ -37,7 +37,7 @@ TwoNaShared.Functions.GetFramework = function(framework)
    return availableFramework
 end 
 
-TwoNaShared.Functions.GetDatabase = function(database) 
+TwoNaShared.Functions.GetDatabase = function() 
    local availableDatabase = nil
 
    for k,v in ipairs(TwoNaShared.Types.Databases) do 
