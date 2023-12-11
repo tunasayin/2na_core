@@ -119,6 +119,19 @@ TwoNa.GetPlayerIdentifier = function(source)
     end
 end
 
+TwoNa.GetCharacterIdentifier = function(source)
+    if TwoNa.IsPlayerAvailable(source) then
+        if Config.Framework.Name == "ESX" then
+            local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
+            return xPlayer.identifier
+        elseif Config.Framework.Name == "QBCore" then
+            return TwoNa.Framework.Functions.GetPlayer(source).PlayerData.citizenid
+        end
+    else
+        return nil
+    end
+end
+
 TwoNa.CreatePlayer = function(xPlayer) 
     local player = {}
 
