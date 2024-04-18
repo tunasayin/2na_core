@@ -5,6 +5,7 @@ TwoNa.Framework = nil
 TwoNa.Functions = TwoNaShared.Functions
 TwoNa.Types = TwoNaShared.Types
 TwoNa.Vehicles = nil
+TwoNa.Config = Config
 TwoNa.MySQL = {
     Async = {},
     Sync = {}
@@ -165,13 +166,17 @@ TwoNa.CreatePlayer = function(xPlayer)
         end
         player.getMoney = xPlayer.getMoney
         player.addBank = function(amount) 
-            xPlayer.addAccountMoney('bank', amount) 
+            xPlayer.addAccountMoney('bank', tonumber(amount)) 
         end
-        player.addMoney = xPlayer.addMoney
+        player.addMoney = function(amount)
+            xPlayer.addMoney(tonumber(amount))
+        end
         player.removeBank = function(amount) 
-            xPlayer.removeAccountMoney('bank', amount) 
+            xPlayer.removeAccountMoney('bank', tonumber(amount)) 
         end
-        player.removeMoney = xPlayer.removeMoney
+        player.removeMoney = function(amount) 
+            xPlayer.removeMoney(tonumber(amount))
+        end
     elseif Config.Framework.Name == "QBCore" then
         player.name = xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
         player.accounts = {
@@ -243,6 +248,28 @@ TwoNa.GetPlayerFromIdentifier = function(identifier)
         return nil
     end
 end
+
+TwoNa.GetPlayerFromCharacterIdentifier = function(charIdentifier)
+    local xPlayer = nil 
+    if Config.Framework.Name == "ESX" then
+        for _, player in ipairs(TwoNa.Framework.GetExtendedPlayers()) do 
+            if player.identifier == charIdentifier then
+                xPlayer = player 
+                break
+            end
+        end
+    elseif Config.Framework.Name == "QBCore" then
+        for _, player in ipairs(TwoNa.Framework.Functions.GetPlayers()) do 
+            player = TwoNa.Framework.Functions.GetPlayer(player)
+            if player.PlayerData.citizenid == charIdentifier then 
+                xPlayer = player
+            end
+        end
+
+    end
+
+    return TwoNa.CreatePlayer(xPlayer)
+end 
 
 TwoNa.GetAllVehicles = function(force)
     if TwoNa.Vehicles and not force then 

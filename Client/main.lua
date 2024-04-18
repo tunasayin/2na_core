@@ -4,6 +4,7 @@ TwoNa.Framework = nil
 TwoNa.Game = {}
 TwoNa.Functions = TwoNaShared.Functions
 TwoNa.Types = TwoNaShared.Types
+TwoNa.Config = Config
 
 TwoNa.TriggerServerCallback = function(name, payload, func) 
     if not func then 

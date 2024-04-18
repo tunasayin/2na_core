@@ -5,7 +5,7 @@ game 'gta5'
 author 'tunasayin'
 description 'Core script needed for almost all 2na scripts.'
 
-version '0.2.8'
+version '0.2.9'
 
 shared_scripts {
 	'Common/*.lua',
