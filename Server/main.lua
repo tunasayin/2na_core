@@ -464,6 +464,20 @@ TwoNa.UpdateVehicleOwner = function(plate, target)
     end
 end
 
+TwoNa.RegisterUsableItem = function(name, action) 
+    if Config.Framework.Name == "ESX" then 
+        TwoNa.Framework.RegisterUsableItem(name, function(source)
+            local xPlayer = TwoNa.Framework.GetPlayerFromId(source)
+            action(TwoNa.CreatePlayer(xPlayer), source)
+        end)
+    elseif Config.Framework.Name == 'QBCore' then
+        TwoNa.Framework.Functions.CreateUseableItem(name, function(source)
+            local xPlayer = TwoNa.Framework.Functions.GetPlayer(source)
+            action(TwoNa.CreatePlayer(xPlayer), source)
+        end)
+    end
+end
+
 TwoNa.CheckUpdate = function()
     PerformHttpRequest("https://api.github.com/repos/tunasayin/2na_core/releases/latest", function(errorCode, rawData, headers) 
         if rawData ~= nil then
