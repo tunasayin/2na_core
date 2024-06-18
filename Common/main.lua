@@ -24,8 +24,8 @@ end
 TwoNaShared.Functions.GetFramework = function() 
    local availableFramework = nil
 
-   for k,v in ipairs(TwoNaShared.Types.Frameworks) do 
-      if GetResourceState(v.ResourceName) == "starting" or GetResourceState(v.ResourceName) == "started" then 
+   for k,v in ipairs(TwoNaShared.Types.Frameworks) do
+      if GetResourceState(v.ResourceName) ~= "missing" then 
          availableFramework = v
       end
    end
@@ -41,7 +41,7 @@ TwoNaShared.Functions.GetDatabase = function()
    local availableDatabase = nil
 
    for k,v in ipairs(TwoNaShared.Types.Databases) do 
-      if GetResourceState(v.ResourceName) == "starting" or GetResourceState(v.ResourceName) == "started" then 
+      if GetResourceState(v.ResourceName) ~= "missing" then 
          availableDatabase = v
       end
    end
